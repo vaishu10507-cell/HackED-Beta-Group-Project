@@ -17,7 +17,8 @@ client = genai.Client() # intialize the gemini ai and reads the api key
 
 @app.post("/analyze-item") #(gemini ai) tells the application that when a POST request is sent to the web address, to run the function below 
 
-def process_scan(selected_category: str = Form(...), file: UploadFile = File(...)):
+# async and await should help reduce the wait time for the test to run (based on gemini ai recommendation)
+async def process_scan(selected_category: str = Form(...), file: UploadFile = File(...)):
     '''
     process_scan takes an image (already uploaded) and asks the AI model used to match what 
     we ask it to do in the prompt and return that text to be called to the frontend.
@@ -32,27 +33,26 @@ def process_scan(selected_category: str = Form(...), file: UploadFile = File(...
     --> "category" : Electronics, "item details" : <what the AI says to do with that item>
     '''
     try:
-        image_bytes = file.file.read() #(gemini ai) takes the image (file.) we process and looks through its contents (file.read) 
+        image_bytes = await file.read() #(gemini ai) takes the image and looks through its contents (file.read) 
         uploaded_image = Image.open(io.BytesIO(image_bytes)) # gets and reads the image file obtained from the frontend
 
-	# mimics the function: Process_scan in psedocode
-	prompt = (
-    	    f"The user selected the recycling category: '{selected_category}'. "
-            "Analyze this image and identify the item name, the material its made of, wheather it's recyclable,"
-    	    "and provide 3 (max) clear preperation steps (like rinsing or emptying) numbered."
+	# mimics the function "Process_scan" in pseudocode, with the prompt and response
+        prompt = (
+            f"The user selected the recycling category: '{selected_category}'. "
+            "Analyze this image and identify the item name, the material its made of, whether it's recyclable,"
+            "and provide 3 (max) clear preparation steps (like rinsing or emptying) numbered."
             "Format your response clearly so the frontend can display it."
         )
 
-	response = client.models.generate_content(
-    	    model="gemini-2.5-flash",
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
             contents=[prompt,uploaded_image]
         )
 
         return {
-	    "category": selected_category,
-	    "item_details": response.text
-	}
+            "category": selected_category,
+            "item_details": response.text
+        }
 
     except Exception as e:
-	raise HTTPException(status_code=500,detail=str(e))
-
+        raise HTTPException(status_code=500,detail=str(e))
