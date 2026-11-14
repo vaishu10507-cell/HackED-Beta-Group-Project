@@ -1,2 +1,4 @@
 # Environment variables with secret API keys
 .env
+
+venv/
