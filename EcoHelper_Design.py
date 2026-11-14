@@ -7,6 +7,8 @@ HackED 2026 - EcoHelper
 import tkinter as tk
 
 TITLE = ("Lexend", 35, "bold")
+HEADER = ("Lexend", 28, "bold")
+NORMALTEXT = ("Lexend", 20, "bold")
 
 class tkinterApp(tk.Tk):
 
@@ -26,7 +28,7 @@ class tkinterApp(tk.Tk):
  
         self.frames = {}  
  
-        for F in (SplashPage, RecyclingType, Scan):
+        for F in (SplashPage, RecyclingType, Scan, DataPage):
  
             frame = F(container, self)
  
@@ -93,7 +95,8 @@ class Scan(tk.Frame):
         
         self.imgScan = tk.PhotoImage(file = "btnScan.png")
         btnScan = tk.Button(self, image=self.imgScan, bg="#236476", relief="flat", 
-                            bd=0, highlightthickness=0, activebackground="#236476")
+                            bd=0, highlightthickness=0, activebackground="#236476",
+                            command = lambda: controller.show_frame(DataPage))
         btnScan.grid(row=3, column=0, padx=10, pady=10)
         
 class DataPage(tk.Frame):
@@ -102,6 +105,35 @@ class DataPage(tk.Frame):
         
         tk.Frame.__init__(self, parent, bg="#236476")
         
+        itemType = "Household Item" # data from GEMINI API
+        binColor = "Blue" # data from GEMINI API
+        cleaningInstructions = " 1 Empty it \n 2 Rinse it \n 3 Throw in " + binColor + "Bin" # data from GEMINI API
+        
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure((0, 3), weight=1)
+        
+        lblResultPrompt = tk.Label(self, text="Your Scan Result", font = HEADER, fg="#C8E6DC", bg="#236476",)
+        lblResultPrompt.grid(row=0, column=0, padx=10, pady=10, sticky="n")
+        
+        lblItemType = tk.Label(self, text=itemType, font = HEADER, fg="#C8E6DC", bg="#236476",)
+        lblItemType.grid(row=1, column=0, padx=10, pady=10)
+        
+        lblBeforeRecycle = tk.Label(self, text="Before you recycle", font = NORMALTEXT, fg="#C8E6DC", bg="#236476",)
+        lblBeforeRecycle.grid(row=2, column=0, padx=10, pady=10)
+        
+        lblInstructions = tk.Label(self, text=cleaningInstructions, font = NORMALTEXT, fg="#C8E6DC", bg="#236476",)
+        lblInstructions.grid(row=3, column=0, padx=10, pady=10)
+        
+        self.imgDirections = tk.PhotoImage(file="btnDirections.png")
+        btnDirections = tk.Button(self, image=self.imgDirections, bg="#236476", relief="flat", 
+                            bd=0, highlightthickness=0, activebackground="#236476") # opens desired map app with directions to the nearest recycling facility
+        btnDirections.grid(row=4, column=0, padx=10, pady=10)
+        
+        self.imgScanAgain = tk.PhotoImage(file="btnScanAgain.png")
+        btnScanAgain = tk.Button(self, image=self.imgScanAgain, bg="#236476", relief="flat", 
+                            bd=0, highlightthickness=0, activebackground="#236476",
+                            command = lambda: controller.show_frame(Scan))
+        btnScanAgain.grid(row=5, column=0, padx=10, pady=10)
 
 app = tkinterApp()
 app.mainloop()
